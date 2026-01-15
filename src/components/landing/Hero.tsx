@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Download, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const Hero = () => {
   return (
@@ -25,10 +26,10 @@ export const Hero = () => {
 
         <div className="animate-fade-up-delay-3 mt-10 flex flex-col sm:flex-row gap-4">
           <Button asChild variant="cta" size="xl">
-            <a href="#form">
+            <Link to="/get-playbook">
               <Download className="w-5 h-5 mr-2" />
               Get it Now
-            </a>
+            </Link>
           </Button>
           <Button
             variant="ghost"

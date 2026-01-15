@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export const StickyBottomCTA = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -39,10 +40,10 @@ export const StickyBottomCTA = () => {
         </div>
 
         <Button asChild variant="cta" size="lg" className="shadow-none shrink-0">
-          <a href="#form">
+          <Link to="/get-playbook">
             <Download className="w-4 h-4 mr-2" />
             Get it Now
-          </a>
+          </Link>
         </Button>
       </div>
     </div>
