@@ -7,8 +7,8 @@ export const Hero = () => {
   return (
     <section className="hero-gradient min-h-screen relative overflow-hidden">
       {/* Logo in top left */}
-      <div className="absolute top-6 left-6 z-20">
-        <img src={sirahLogo} alt="Sirah Digital" className="h-12 sm:h-16 w-auto" />
+      <div className="absolute top-2 left-4 z-20">
+        <img src={sirahLogo} alt="Sirah Digital" className="h-10 sm:h-12 w-auto" />
       </div>
 
       {/* Background pattern */}
