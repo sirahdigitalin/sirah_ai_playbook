@@ -39,6 +39,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Sirah Digital <support@sirahdigital.in>",
       to: [email],
+      cc: ["support@sirahdigital.in"],
       subject: "Your AI Playbook for 2026 is Ready!",
       html: `
         <!DOCTYPE html>
