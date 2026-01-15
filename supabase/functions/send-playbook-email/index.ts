@@ -30,12 +30,12 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Direct PDF download URL
+    // Use configured app URL for email links
     const appUrl = "https://sirahdigital.in";
     const pdfUrl = `${appUrl}/Sirah_Digital_AI_Playbook_2026.pdf`;
     const playbookViewerUrl = `${appUrl}/playbook`;
     
-    console.log("PDF URL:", pdfUrl);
+    console.log("Playbook URLs - PDF:", pdfUrl, "Viewer:", playbookViewerUrl);
 
     const emailResponse = await resend.emails.send({
       from: "Sirah Digital <support@sirahdigital.in>",
