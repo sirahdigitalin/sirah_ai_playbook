@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Download, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import sirahLogo from "@/assets/sirah-digital-logo.jpg";
@@ -52,6 +53,7 @@ export default function GetPlaybook() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
+  const [consentGiven, setConsentGiven] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -98,6 +100,16 @@ export default function GetPlaybook() {
       toast({
         title: "Please fill in required fields",
         description: "Name, email, and website URL are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Consent validation
+    if (!consentGiven) {
+      toast({
+        title: "Consent required",
+        description: "Please agree to receive promotional messages on WhatsApp.",
         variant: "destructive",
       });
       return;
@@ -230,11 +242,25 @@ export default function GetPlaybook() {
             </DropdownMenu>
             <Input
               type="tel"
-              placeholder="Phone Number"
+              placeholder="WhatsApp Number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="bg-muted/50 border-border/30 text-foreground placeholder:text-muted-foreground h-14 rounded-xl flex-1"
             />
+          </div>
+          <div className="flex items-start space-x-3">
+            <Checkbox
+              id="consent"
+              checked={consentGiven}
+              onCheckedChange={(checked) => setConsentGiven(checked === true)}
+              className="mt-1"
+            />
+            <label
+              htmlFor="consent"
+              className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
+            >
+              I agree to receive promotional messages and updates on WhatsApp. <span className="text-destructive">*</span>
+            </label>
           </div>
           <Input
             type="email"
