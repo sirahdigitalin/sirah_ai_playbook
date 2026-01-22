@@ -175,7 +175,7 @@ export default function GetPlaybook() {
             name,
             email,
             whatsapp: getFullPhoneNumber(),
-            whatsapp_optin: True,
+            whatsapp_optin: true,
           }),
         });
       } catch (webhookError) {
