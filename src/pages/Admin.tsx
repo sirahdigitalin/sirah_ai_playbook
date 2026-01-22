@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, RefreshCw, Users, Mail, Phone, Globe, Calendar, Download, Search, Trash2, X, ChevronDown } from "lucide-react";
+import { LogOut, RefreshCw, Users, Mail, Phone, Globe, Calendar, Download, Search, Trash2, X, ChevronDown, Send } from "lucide-react";
 import sirahLogo from "@/assets/sirah-digital-logo.jpg";
 import { Session } from "@supabase/supabase-js";
 import {
@@ -43,6 +43,7 @@ export default function Admin() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [sendingMessageId, setSendingMessageId] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -192,6 +193,40 @@ export default function Admin() {
     }
   };
 
+  const handleSendMessage = async (lead: Lead) => {
+    setSendingMessageId(lead.id);
+    try {
+      const formData = new URLSearchParams();
+      formData.append("name", lead.name);
+      formData.append("email", lead.email);
+      formData.append("whatsapp", lead.phone || "");
+      formData.append("whatsapp_optin", "true");
+
+      await fetch("https://n8n.srv930949.hstgr.cloud/webhook/playbook-lead", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        mode: "no-cors",
+        body: formData.toString(),
+      });
+
+      toast({
+        title: "Message triggered",
+        description: `Webhook sent for ${lead.name}.`,
+      });
+    } catch (error: any) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error sending message",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSendingMessageId(null);
+    }
+  };
+
   // Filter leads based on search query (email or name)
   const filteredLeads = useMemo(() => {
     if (!searchQuery.trim()) return leads;
@@ -317,18 +352,19 @@ export default function Admin() {
                   <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground hidden sm:table-cell">Date</th>
                   <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Actions</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Send Message</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                    <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
                       Loading leads...
                     </td>
                   </tr>
                 ) : filteredLeads.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                    <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
                       {searchQuery ? "No leads match your search." : "No leads yet. Share your landing page to start collecting leads!"}
                     </td>
                   </tr>
@@ -407,6 +443,18 @@ export default function Admin() {
                           className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
                           <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSendMessage(lead)}
+                          disabled={sendingMessageId === lead.id}
+                          className="text-accent hover:text-accent-foreground hover:bg-accent"
+                        >
+                          <Send className="w-4 h-4 mr-1" />
+                          {sendingMessageId === lead.id ? "Sending..." : "Send"}
                         </Button>
                       </td>
                     </tr>
