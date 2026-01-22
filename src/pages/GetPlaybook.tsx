@@ -61,26 +61,27 @@ export default function GetPlaybook() {
   // Validation helpers
   const isValidEmail = (email: string) => {
     // RFC 5322 compliant email regex - checks proper format with valid TLD
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+    const emailRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
     return email.length <= 254 && emailRegex.test(email.trim().toLowerCase());
   };
 
   const isValidPhone = (phoneNumber: string, code: string) => {
     // Remove all non-digit characters
-    const cleaned = phoneNumber.replace(/\D/g, '');
-    
+    const cleaned = phoneNumber.replace(/\D/g, "");
+
     // For Indian numbers (+91), must be 10 digits starting with 6-9
     if (code === "+91") {
       return /^[6-9]\d{9}$/.test(cleaned);
     }
-    
+
     // For other countries, accept 6-15 digits
     return cleaned.length >= 6 && cleaned.length <= 15;
   };
 
   const isValidUrl = (url: string) => {
     try {
-      new URL(url.startsWith('http') ? url : `https://${url}`);
+      new URL(url.startsWith("http") ? url : `https://${url}`);
       return true;
     } catch {
       return false;
@@ -89,12 +90,12 @@ export default function GetPlaybook() {
 
   const getFullPhoneNumber = () => {
     if (!phone.trim()) return "";
-    return `${countryCode}${phone.replace(/\D/g, '')}`;
+    return `${countryCode}${phone.replace(/\D/g, "")}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Required fields validation
     if (!name.trim() || !email.trim() || !websiteUrl.trim()) {
       toast({
@@ -127,9 +128,10 @@ export default function GetPlaybook() {
 
     // Phone validation (if provided)
     if (phone.trim() && !isValidPhone(phone, countryCode)) {
-      const errorMsg = countryCode === "+91" 
-        ? "Enter a 10-digit mobile number starting with 6-9."
-        : "Enter a valid phone number (6-15 digits).";
+      const errorMsg =
+        countryCode === "+91"
+          ? "Enter a 10-digit mobile number starting with 6-9."
+          : "Enter a valid phone number (6-15 digits).";
       toast({
         title: "Invalid phone number",
         description: errorMsg,
@@ -163,19 +165,18 @@ export default function GetPlaybook() {
 
       // Trigger n8n webhook for lead notification
       try {
-        const formData = new URLSearchParams();
-        formData.append("name", name);
-        formData.append("email", email);
-        formData.append("whatsapp", getFullPhoneNumber());
-        formData.append("whatsapp_optin", String(consentGiven));
-        
         await fetch("https://n8n.srv930949.hstgr.cloud/webhook/playbook-lead", {
           method: "POST",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
           },
           mode: "no-cors",
-          body: formData.toString(),
+          body: JSON.stringify({
+            name,
+            email,
+            whatsapp: getFullPhoneNumber(),
+            whatsapp_optin: True,
+          }),
         });
       } catch (webhookError) {
         console.error("Webhook error:", webhookError);
@@ -221,11 +222,12 @@ export default function GetPlaybook() {
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground text-center leading-tight mb-4">
           Build a Smarter Business for 2026
         </h1>
-        <p className="text-primary-foreground/80 text-center mb-8">
-          Start with clarity, systems, and practical AI.
-        </p>
+        <p className="text-primary-foreground/80 text-center mb-8">Start with clarity, systems, and practical AI.</p>
 
-        <form onSubmit={handleSubmit} className="bg-card/80 backdrop-blur-sm rounded-2xl p-6 space-y-4 border border-border/20">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-card/80 backdrop-blur-sm rounded-2xl p-6 space-y-4 border border-border/20"
+        >
           <Input
             type="text"
             placeholder="Your Name"
@@ -237,12 +239,12 @@ export default function GetPlaybook() {
           <div className="flex gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
+                <Button
                   type="button"
-                  variant="outline" 
+                  variant="outline"
                   className="bg-muted/50 border-border/30 h-14 rounded-xl px-3 flex items-center gap-1 min-w-[90px]"
                 >
-                  <span className="text-lg">{countryCodes.find(c => c.code === countryCode)?.flag}</span>
+                  <span className="text-lg">{countryCodes.find((c) => c.code === countryCode)?.flag}</span>
                   <span className="text-sm">{countryCode}</span>
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </Button>
@@ -276,11 +278,9 @@ export default function GetPlaybook() {
               onCheckedChange={(checked) => setConsentGiven(checked === true)}
               className="mt-1"
             />
-            <label
-              htmlFor="consent"
-              className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
-            >
-              I agree to receive promotional messages and updates on WhatsApp. <span className="text-destructive">*</span>
+            <label htmlFor="consent" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+              I agree to receive promotional messages and updates on WhatsApp.{" "}
+              <span className="text-destructive">*</span>
             </label>
           </div>
           <Input
@@ -300,20 +300,12 @@ export default function GetPlaybook() {
             required
           />
 
-          <Button
-            type="submit"
-            variant="cta"
-            size="xl"
-            className="w-full"
-            disabled={isSubmitting}
-          >
+          <Button type="submit" variant="cta" size="xl" className="w-full" disabled={isSubmitting}>
             <Download className="w-5 h-5 mr-2" />
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
 
-          <p className="text-sm text-muted-foreground text-center">
-            No spam. Unsubscribe anytime.
-          </p>
+          <p className="text-sm text-muted-foreground text-center">No spam. Unsubscribe anytime.</p>
         </form>
       </div>
     </div>
